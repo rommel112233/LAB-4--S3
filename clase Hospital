@@ -8,11 +8,10 @@ public class Hospital {
 
     public Hospital() {
         this.pacientesTotales = new HashMap<>();
-        this.colaAtencion = new PriorityQueue<>(); // si usas uno
+        this.colaAtencion = new PriorityQueue<>();
         this.areasAtencion = new HashMap<>();
         this.pacientesAtendidos = new ArrayList<>();
 
-        // ¡Esto es clave!
         areasAtencion.put("SAPU", new AreaAtencion("SAPU", 100));
         areasAtencion.put("urgencia_adulto", new AreaAtencion("urgencia_adulto", 100));
         areasAtencion.put("infantil", new AreaAtencion("infantil", 100));
@@ -20,12 +19,12 @@ public class Hospital {
 
     public void registrarPaciente(Paciente p) {
         pacientesTotales.put(p.getId(), p);
-        colaAtencion.add(p); // si usas cola general
+        colaAtencion.add(p);
         AreaAtencion area = areasAtencion.get(p.getArea());
         if (area != null) {
             area.ingresarPaciente(p);
         } else {
-            System.out.println("Área NO encontrada: " + p.getArea()); // 💡 si esto se imprime, está mal el nombre
+            System.out.println("Área NO encontrada: " + p.getArea());
         }
     }
 
@@ -50,15 +49,13 @@ public class Hospital {
             return;
         }
 
-        // Registrar el cambio en el historial
         p.registrarCambio("Categoría cambiada de C" + categoriaAnterior + " a C" + nuevaCategoria);
         p.setCategoria(nuevaCategoria);
 
-        // Sacar y reinsertar el paciente en su heap para que se reordene
         AreaAtencion area = areasAtencion.get(p.getArea());
 
         if (area != null) {
-            area.reinsertarPaciente(p); // Este método lo definiremos abajo
+            area.reinsertarPaciente(p);
         } else {
             System.out.println("Área " + p.getArea() + " no encontrada.");
         }
@@ -66,20 +63,16 @@ public class Hospital {
     public Paciente atenderSiguiente() {
         if (colaAtencion.isEmpty()) return null;
 
-        // Sacar el paciente más prioritario de la cola general
         Paciente siguiente = colaAtencion.poll();
 
-        // Cambiar su estado
         siguiente.setEstado("atendido");
         siguiente.registrarCambio("Paciente atendido");
 
-        // Guardar en la lista de pacientes atendidos
         pacientesAtendidos.add(siguiente);
 
-        // También lo eliminamos de su área (si estaba ahí) y lo actualizamos
         AreaAtencion area = areasAtencion.get(siguiente.getArea());
         if (area != null) {
-            area.pacientesHeap.remove(siguiente); // Por si estaba ahí también
+            area.pacientesHeap.remove(siguiente);
         }
 
         return siguiente;
