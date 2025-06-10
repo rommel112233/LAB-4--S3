@@ -1,0 +1,87 @@
+import java.util.*;
+
+public class Hospital {
+    private Map<String, Paciente> pacientesTotales;
+    private PriorityQueue<Paciente> colaAtencion;
+    private Map<String, AreaAtencion> areasAtencion;
+    private List<Paciente> pacientesAtendidos;
+
+    public Hospital() {
+        this.pacientesTotales = new HashMap<>();
+        this.colaAtencion = new PriorityQueue<>(); // si usas uno
+        this.areasAtencion = new HashMap<>();
+        this.pacientesAtendidos = new ArrayList<>();
+
+        // ¡Esto es clave!
+        areasAtencion.put("SAPU", new AreaAtencion("SAPU", 100));
+        areasAtencion.put("urgencia_adulto", new AreaAtencion("urgencia_adulto", 100));
+        areasAtencion.put("infantil", new AreaAtencion("infantil", 100));
+    }
+
+    public void registrarPaciente(Paciente p) {
+        pacientesTotales.put(p.getId(), p);
+        colaAtencion.add(p); // si usas cola general
+        AreaAtencion area = areasAtencion.get(p.getArea());
+        if (area != null) {
+            area.ingresarPaciente(p);
+        } else {
+            System.out.println("Área NO encontrada: " + p.getArea()); // 💡 si esto se imprime, está mal el nombre
+        }
+    }
+
+    public AreaAtencion obtenerArea(String nombre) {
+        return areasAtencion.get(nombre);
+    }
+
+    public List<Paciente> getPacientesAtendidos() {
+        return pacientesAtendidos;
+    }
+    public void reasignarCategoria(String id, int nuevaCategoria) {
+        Paciente p = pacientesTotales.get(id);
+
+        if (p == null) {
+            System.out.println("Paciente con ID " + id + " no encontrado.");
+            return;
+        }
+
+        int categoriaAnterior = p.getCategoria();
+        if (categoriaAnterior == nuevaCategoria) {
+            System.out.println("La categoría es la misma, no se realiza cambio.");
+            return;
+        }
+
+        // Registrar el cambio en el historial
+        p.registrarCambio("Categoría cambiada de C" + categoriaAnterior + " a C" + nuevaCategoria);
+        p.setCategoria(nuevaCategoria);
+
+        // Sacar y reinsertar el paciente en su heap para que se reordene
+        AreaAtencion area = areasAtencion.get(p.getArea());
+
+        if (area != null) {
+            area.reinsertarPaciente(p); // Este método lo definiremos abajo
+        } else {
+            System.out.println("Área " + p.getArea() + " no encontrada.");
+        }
+    }
+    public Paciente atenderSiguiente() {
+        if (colaAtencion.isEmpty()) return null;
+
+        // Sacar el paciente más prioritario de la cola general
+        Paciente siguiente = colaAtencion.poll();
+
+        // Cambiar su estado
+        siguiente.setEstado("atendido");
+        siguiente.registrarCambio("Paciente atendido");
+
+        // Guardar en la lista de pacientes atendidos
+        pacientesAtendidos.add(siguiente);
+
+        // También lo eliminamos de su área (si estaba ahí) y lo actualizamos
+        AreaAtencion area = areasAtencion.get(siguiente.getArea());
+        if (area != null) {
+            area.pacientesHeap.remove(siguiente); // Por si estaba ahí también
+        }
+
+        return siguiente;
+    }
+}
