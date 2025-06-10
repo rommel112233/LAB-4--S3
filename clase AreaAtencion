@@ -1,0 +1,52 @@
+import java.util.*;
+
+public class AreaAtencion {
+    private String nombre;
+    PriorityQueue<Paciente> pacientesHeap;
+    private int capacidadMaxima;
+
+    public AreaAtencion(String nombre, int capacidadMaxima) {
+        this.nombre = nombre;
+        this.capacidadMaxima = capacidadMaxima;
+        this.pacientesHeap = new PriorityQueue<>(new Comparator<Paciente>() {
+            @Override
+            public int compare(Paciente A1, Paciente A2) {
+                if (A1.getCategoria() != A2.getCategoria()) {
+                    return Integer.compare(A1.getCategoria(), A2.getCategoria());
+                } else {
+                    return Long.compare(A1.getTiempollegada(), A2.getTiempollegada()); // menor llegada = más espera
+                }
+            }
+        });
+    }
+
+    public boolean estaSaturada() {
+        int pacientesActuales = pacientesHeap.size();
+        boolean resultado = pacientesActuales >= capacidadMaxima;
+        return resultado;
+    }
+
+    public void ingresarPaciente(Paciente p) {
+        if (!estaSaturada()) {
+            pacientesHeap.add(p);
+        }
+    }
+
+    public Paciente atenderPaciente() {
+        return pacientesHeap.poll();
+    }
+
+    public List<Paciente> obtenerPacientesPorHeapSort() {
+        PriorityQueue<Paciente> copia = new PriorityQueue<>(pacientesHeap);
+        List<Paciente> ordenados = new ArrayList<>();
+        while (!copia.isEmpty()) {
+            ordenados.add(copia.poll());
+        }
+        return ordenados;
+    }
+    public void reinsertarPaciente(Paciente p) {
+        // Elimina y vuelve a insertar para que el heap reordene la prioridad
+        pacientesHeap.remove(p);
+        pacientesHeap.add(p);
+    }
+}
