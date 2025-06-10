@@ -61,7 +61,7 @@ public class SimuladorUrgencia {
 
         System.out.println("Pacientes fuera de tiempo: " + pacientesFueraDeTiempo.size());
         for (Paciente p : pacientesFueraDeTiempo) {
-            long tiempoActual = (minutoActual * 60); // minutoActual está en minutos, lo pasamos a segundos
+            long tiempoActual = (minutoActual * 60);
             System.out.println("- ID: " + p.getId() + ", categoría: C" + p.getCategoria() +
                     ", espera: " + p.tiempoEsperaSimulada(tiempoActual) + " min");
         }
