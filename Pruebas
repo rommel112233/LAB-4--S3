@@ -52,7 +52,7 @@ class PruebasLaboratorio{
     public static void pruebaSaturacionSistema() {
         System.out.println("\nPrueba 3: Saturación del sistema");
 
-        List<Paciente> pacientes = GeneradorPacientes.generarPacientes(100); // o 200 si quieres más carga
+        List<Paciente> pacientes = GeneradorPacientes.generarPacientes(100);
         Map<Integer, Integer> cantidadPorCategoria = new HashMap<>();
         int fueraDeTiempo = 0;
 
