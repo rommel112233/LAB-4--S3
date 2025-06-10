@@ -14,7 +14,7 @@ public class AreaAtencion {
                 if (A1.getCategoria() != A2.getCategoria()) {
                     return Integer.compare(A1.getCategoria(), A2.getCategoria());
                 } else {
-                    return Long.compare(A1.getTiempollegada(), A2.getTiempollegada()); // menor llegada = más espera
+                    return Long.compare(A1.getTiempollegada(), A2.getTiempollegada());
                 }
             }
         });
@@ -45,7 +45,6 @@ public class AreaAtencion {
         return ordenados;
     }
     public void reinsertarPaciente(Paciente p) {
-        // Elimina y vuelve a insertar para que el heap reordene la prioridad
         pacientesHeap.remove(p);
         pacientesHeap.add(p);
     }
