@@ -1,0 +1,100 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+class PruebasLaboratorio{
+    public static void main(String[] args) {
+        pruebaSeguimientoIndividual();
+        pruebaPromedioPorCategoria();
+        pruebaSaturacionSistema();
+        pruebaCambioCategoria();
+    }
+
+    public static void pruebaSeguimientoIndividual() {
+        System.out.println("Prueba 1: Seguimiento de paciente C4");
+
+        long timestampInicio = System.currentTimeMillis() / 1000;
+        Paciente paciente = new Paciente("Luis", "Ruiz", "P1", 4, timestampInicio, "urgencia_adulto");
+        paciente.setEstado("atendido");
+        paciente.registrarCambio("Paciente atendido");
+
+        long tiempoSimulado = timestampInicio + 600;
+
+        System.out.println("Paciente: " + paciente.getNombre() + " " + paciente.getApellido());
+        System.out.println("Esperó: " + paciente.tiempoEsperaSimulada(tiempoSimulado) + " minutos");
+        System.out.println("Historial: " + paciente.getHistorial());
+    }
+
+    public static void pruebaPromedioPorCategoria() {
+        System.out.println("\nPrueba 2 (aleatoria): Promedio por categoría");
+
+        List<Paciente> pacientes = GeneradorPacientes.generarPacientes(100);
+        Map<Integer, List<Long>> tiempos = new HashMap<>();
+        long tiempoActual = System.currentTimeMillis() / 1000;
+
+        for (Paciente p : pacientes) {
+            long espera = p.tiempoEsperaSimulada(tiempoActual);
+            int cat = p.getCategoria();
+            tiempos.putIfAbsent(cat, new ArrayList<>());
+            tiempos.get(cat).add(espera);
+        }
+
+        for (int cat : tiempos.keySet()) {
+            List<Long> lista = tiempos.get(cat);
+            long suma = 0;
+            for (long t : lista) suma += t;
+            double promedio = (double) suma / lista.size();
+            System.out.println("C" + cat + ": " + lista.size() + " pacientes, " + promedio + " min promedio");
+        }
+    }
+
+    public static void pruebaSaturacionSistema() {
+        System.out.println("\nPrueba 3: Saturación del sistema");
+
+        List<Paciente> pacientes = GeneradorPacientes.generarPacientes(100); // o 200 si quieres más carga
+        Map<Integer, Integer> cantidadPorCategoria = new HashMap<>();
+        int fueraDeTiempo = 0;
+
+        long tiempoActual = System.currentTimeMillis() / 1000;
+
+        for (Paciente p : pacientes) {
+            int cat = p.getCategoria();
+            long espera = p.tiempoEsperaSimulada(tiempoActual);
+
+            cantidadPorCategoria.put(cat, cantidadPorCategoria.getOrDefault(cat, 0) + 1);
+            if (espera > tiempoMaximoPermitido(cat)) {
+                fueraDeTiempo++;
+            }
+        }
+
+        for (int cat : cantidadPorCategoria.keySet()) {
+            System.out.println("C" + cat + ": " + cantidadPorCategoria.get(cat) + " atendidos");
+        }
+
+        System.out.println("Pacientes fuera de tiempo: " + fueraDeTiempo);
+    }
+
+    public static void pruebaCambioCategoria() {
+        System.out.println("\nPrueba 4: Cambio de categoría");
+
+        long llegada = System.currentTimeMillis() / 1000;
+        Paciente p = new Paciente("Carlos", "Ramos", "P999", 3, llegada, "SAPU");
+        p.registrarCambio("Paciente registrado con categoría 3 en área SAPU");
+        p.setCategoria(1);
+        p.registrarCambio("Categoría actualizada a 1");
+
+        System.out.println("Nueva categoría: " + p.getCategoria());
+        System.out.println("Historial: " + p.getHistorial());
+    }
+
+    private static int tiempoMaximoPermitido(int categoria) {
+        switch (categoria) {
+            case 1: return 0;
+            case 2: return 30;
+            case 3: return 90;
+            case 4: return 180;
+            default: return Integer.MAX_VALUE;
+        }
+    }
+}
